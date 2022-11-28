@@ -27,7 +27,7 @@ if strcmp(dataset,'Bench')
     total_ch=64; % # of channels used at collection of the dataset
     max_epochs=500; % # of epochs for first stage
     dropout_second_stage=0.6; % Dropout probabilities of first two dropout layers at second stage
-    addpath('C:\Users\bg060\Documents\MATLAB\SSVEP\Benchmark Dataset');
+    % Add the path of the benchmark dataset folder with "addpath('...')" 
     load('Freq_Phase.mat')
 elseif strcmp(dataset,'BETA')
     totalparticipants=70;
@@ -40,8 +40,7 @@ elseif strcmp(dataset,'BETA')
     total_ch=64;
     max_epochs=800;
     dropout_second_stage=0.7;
-    %C:\Users\bg060\Documents\MATLAB\SSVEP\BETA Dataset
-    addpath('C:\Users\bg060\Documents\MATLAB\SSVEP\BETA Dataset');
+    % Add the path of the BETA dataset folder with "addpath('...')" 
     load('Freqs_Beta.mat')
     %else %if you want to use another dataset please specify parameters of the dataset
     % totalsubject= ... ,
@@ -99,13 +98,21 @@ for test_participant=1:totalparticipants
     load(sv_name);
     
     % Take the sub-band and channel combinations' weights of fine-tuned participants' DNNs:
+    % Also, take the templates with combining their sub-bands:
     all_channel_combs=zeros(length(channels),120,totalparticipants-1);
     all_subband_combs=zeros(1,1,3,totalparticipants-1);
+    templates=zeros(sizes(1),sizes(2),totalcharacter,totalparticipants-1);
     for n = 1:totalparticipants-1
         prt = AllParticipants(n);
         subband_weights=participants_DNNs{prt, 1}.Layers(2, 1).Weights;
         all_subband_combs(:,:,:,n)=subband_weights;
         all_channel_combs(:,:,n)=squeeze(participants_DNNs{prt, 1}.Layers(3, 1).Weights);
+        
+        train_data=AllData(:,:,:,:,:,prt); % Get the all data of the participant prt
+        for chr=1:totalcharacter
+            tmp_template = mean(train_data(:,:,:,chr,:),5);
+            templates(:,:,chr,n)=sum(subband_weights.*tmp_template,3); % Combine the sub-bands of the participant prt's template using the sub-band combination weight of her/his own DNN
+        end
     end
     %
     
@@ -140,10 +147,7 @@ for test_participant=1:totalparticipants
             test_ins=sum(all_subband_combs(:,:,:,n).*testdata(:,:,:,idx),3); % Combine the sub-bands of the new user instance using the sub-band combination weight of n'th participant's DNN           
             
             % Get the template of the n'th training participant:            
-            template = mean(train_data(:,:,:,prediction,:),5);
-            %
-            
-            template=sum(all_subband_combs(:,:,:,n).*template,3); % % Combine the sub-bands of the n'th participant's template using the sub-band combination weight of n'th participant's DNN
+            template=templates(:,:,prediction,n);
             
             % Calculate the similarity measure for all the channel
             % combination weights and pick the one with the maximimum
