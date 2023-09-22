@@ -9,6 +9,9 @@ In our performance evaluations, we conducted the comparisons (following the proc
 For example, we constitute the ensemble using 34 (69) participants and test the performance on the remaining participant, who is considered a new user. This process is repeated 35 (70) times in the case of the benchmark (BETA) dataset. While calculating the information transfer rate (ITR) results, a 0.5 second gaze shift time is taken into account. We use the DNN architecture of [4] as a DNN architecture in the ensemble. In the DNN architecture, we use three sub-bands and nine channels (Pz, PO3, PO5,
 PO4, PO6, POz, O1, Oz, O2).
 
+# Results
+The original results of our ensemble method for both the benchmark and BETA datasets are now available in the 'Results' folder.
+
 # References 
 1. O. B. Guney and H. Ozkan, “Transfer learning of an ensemble of dnns for ssvep bci spellers without user-specific training,” Journal of Neural Engineering, vol. 20, 016013, Jan 2023.
 2. Y. Wang, X. Chen, X. Gao, and S. Gao, “A benchmark dataset for
